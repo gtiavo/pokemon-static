@@ -127,7 +127,8 @@ const pokemonNames: string[] = data.results.map( pokemon => pokemon.name)
     paths: pokemonNames.map( name => ({
       params:{name}
     })),
-    fallback: false
+    // fallback: false
+    fallback:'blocking'
   }
 }
 
@@ -137,10 +138,23 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
   const { name } = params as { name: string};
 
   
+  const pokemon = await getpokemonInfo( name );
+
+  if( !pokemon ) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
+  
     return {
       props: {
-       pokemon: await getpokemonInfo( name )
-      }
+       pokemon 
+      },
+      revalidate: 86400, //60 * 60 * 24 segundos * minutos * horas
+
     }
   }
 
